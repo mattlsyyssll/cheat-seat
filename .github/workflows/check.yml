@@ -1,0 +1,26 @@
+name: checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Node version
+        run: node --version
+      - name: Checks
+        run: |
+          set -e
+          npm ci
+          npm test
+          npm run typecheck
+      - name: Saved files unchanged by the re-run
+        run: git diff --exit-code && echo "re-run files equal the saved ones"
