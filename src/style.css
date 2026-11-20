@@ -1,0 +1,117 @@
+:root { color-scheme: dark; --gold: #e2b85a; --ink: #f4ecd8; --bg: #120d0a; --plate: rgba(12,8,6,.82); }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+main { position: fixed; inset: 0; }
+#scene-container { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, #2a1b12, #120d0a 70%); }
+#scene-container canvas { display: block; width: 100%; height: 100%; cursor: none; touch-action: none; }
+
+/* Stage D: ONE text layer at a time, and every line readable in a 640 px wide video (a 1920 px frame shrunk to a third): the type is sized by the
+ * width of the window, 17 px or more at 640 px. Nothing sits on his hat or face: lines go to the bottom of the picture, near your hand. */
+.hud { position: absolute; top: 14px; left: 16px; display: flex; flex-direction: column; gap: 2px; font-size: clamp(16px, 2.2vw, 44px); font-weight: 650; background: var(--plate); padding: .3em .7em; border-radius: .6em; pointer-events: none; max-width: 40vw; }
+.hud span:first-child { color: var(--gold); font-weight: 750; }
+.hud #hud-goal { font-weight: 500; opacity: .9; }
+.pips { position: absolute; top: 18px; left: 18px; display: flex; gap: 8px; pointer-events: none; }
+.pips i { display: block; width: clamp(12px, 1.2vw, 22px); height: clamp(12px, 1.2vw, 22px); border-radius: 50%; border: 3px solid rgba(226,184,90,.8); background: transparent; }
+.pips i.done { background: var(--gold); }
+.pips i.now { background: rgba(226,184,90,.45); }
+.pausebtn { position: absolute; top: 14px; right: 16px; width: clamp(34px, 3vw, 56px); height: clamp(34px, 3vw, 56px); border-radius: 50%; border: 2px solid rgba(226,184,90,.7); background: var(--plate); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 22%; padding: 0; z-index: 4; }
+.pausebtn b { display: block; width: 14%; height: 40%; background: var(--ink); border-radius: 2px; }
+.pausebtn:hover { background: rgba(60,40,22,.9); }
+/* the one instruction: a caption in the left third of the picture, between the dark shelf and the near corner of the felt. The bottom middle holds
+ * your card, the ring and your hand, and the top middle is his hat: nothing goes there. */
+.prompt { position: absolute; left: 2.5vw; bottom: 21vh; width: min(30vw, 640px); text-align: left; font-size: clamp(20px, 2.6vw, 50px); line-height: 1.18; font-weight: 700; padding: .35em .7em; border-radius: .5em; background: var(--plate); border: 2px solid rgba(226,184,90,.75); pointer-events: none; }
+.prompt small { font-size: .8em; font-weight: 600; opacity: .95; display: block; margin-top: .15em; }
+/* stage F: the tips of the guided first match can be switched off from the line itself */
+.prompt .tips-off { display: block; margin-top: .45em; pointer-events: auto; cursor: pointer; font-size: .55em; font-weight: 650; padding: .25em .7em; border-radius: .5em; border: 1px solid rgba(226,184,90,.6); background: rgba(0,0,0,.35); color: var(--ink); }
+.prompt.urgent { border-color: #ff7a4a; box-shadow: 0 0 26px rgba(255,122,74,.5); }
+/* on the start screen the demo's one line goes to the bottom right (the title panel is on the left) */
+body.starting .prompt { left: auto; right: 2.5vw; bottom: 8vh; }
+/* the hold-still cue and the under-the-table sign sit at the bottom left, never under the caption */
+.tremor { position: absolute; left: 2.5vw; bottom: 5vh; display: flex; align-items: center; gap: .5em; pointer-events: none; font-size: clamp(17px, 2.4vw, 46px); background: var(--plate); padding: .25em .8em; border-radius: 2em; }
+.tremor i { display: block; width: 1.3em; height: 1.3em; border-radius: 50%; border: 4px solid #fff; transition: border-color .1s; }
+body.has-prompt .tremor span { display: none; }
+body.has-prompt .tremor { padding: .3em; }
+.handicon { position: absolute; left: 2.5vw; bottom: 5vh; display: flex; align-items: center; gap: .45em; font-size: clamp(17px, 2.4vw, 46px); background: var(--plate); padding: .25em .8em; border-radius: 2em; pointer-events: none; color: #7fe3ff; }
+.handicon svg { width: 1.4em; height: 1.4em; fill: #7fe3ff; }
+.handicon.swap { color: var(--gold); } .handicon.swap svg { fill: var(--gold); }
+body.has-prompt .handicon span { display: none; }
+body.has-prompt .handicon { padding: .3em; }
+/* the result: a caption in the same place (it replaces the instruction while it shows), so his face, hat and cards stay clear */
+.stamp { position: absolute; left: 2.5vw; bottom: 21vh; text-align: left; pointer-events: none; padding: .3em .8em .35em; border-radius: .5em; background: var(--plate); border: 3px solid var(--gold); width: min(31vw, 660px); }
+.stamp b { display: block; font-size: clamp(26px, 3.6vw, 66px); letter-spacing: .02em; line-height: 1.1; }
+.stamp span { display: block; margin-top: .15em; font-size: clamp(16px, 2.3vw, 44px); line-height: 1.2; opacity: .98; font-weight: 550; }
+.stamp.bad { border-color: #ff5a40; } .stamp.bad b { color: #ff6a50; }
+.stamp.good { border-color: #6fdc8c; } .stamp.good b { color: #86f0a0; }
+body.has-stamp .prompt { display: none; }
+/* the kept-card count plate (dots): top right over the dark wall, clear of the felt labels, the tokens and the keep spot */
+.stamp.dots { left: auto; right: 16px; bottom: auto; top: 17vh; width: auto; min-width: 5.5em; text-align: center; }
+.flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; background: #ff2a1a; mix-blend-mode: screen; }
+.pointbtn { position: absolute; right: 16px; top: 34%; /* right edge, over the dark wall: the bottom right is where the keep spot (Desk Keep) lies on the felt, and the top right is his face and the picture */ font-size: clamp(16px, 2.2vw, 42px); padding: .5em .9em; border-radius: .6em; border: 2px solid rgba(226,184,90,.7); background: var(--plate); color: var(--ink); cursor: pointer; }
+.pointbtn.on { background: var(--gold); color: #1a120c; }
+.notice { position: absolute; left: 14px; bottom: 14px; font-size: 14px; opacity: .85; max-width: 60vw; }
+
+/* the start screen: a panel on the left (over the dark shelf), so the Shark, his hands and the cards stay clear; on a narrow or tall window it
+ * goes to the bottom instead */
+.start { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-start; padding: 0 0 0 4vw; background: linear-gradient(to right, rgba(12,8,6,.88), rgba(12,8,6,.62) 24%, rgba(12,8,6,0) 42%); z-index: 5; }
+.start[hidden] { display: none; }
+/* stage F (D10, D11): the words sit on their own dark card, so no line runs over his hands, the deck or the felt, at any window size */
+.start-card { text-align: left; padding: 1.1vw 1.4vw 1.3vw; width: min(36vw, 720px); background: rgba(12,8,6,.84); border: 1px solid rgba(226,184,90,.32); border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,.55); }
+.start-card .stakes { margin: -.35em 0 .75em; font-size: clamp(17px, 2.1vw, 40px); font-weight: 750; color: #ffb4a0; line-height: 1.2; }
+.start-card .spade { display: none; }
+.start-card h1 { margin: 0 0 .15em; font-size: clamp(38px, 5.6vw, 104px); letter-spacing: .02em; line-height: 1; color: var(--gold); text-shadow: 0 2px 18px rgba(0,0,0,.7); }
+.goal { font-size: clamp(18px, 2.2vw, 42px); line-height: 1.22; margin: 0 0 .6em; font-weight: 600; text-shadow: 0 1px 10px rgba(0,0,0,.8); overflow-wrap: anywhere; }
+.start-buttons { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+.big { font-size: clamp(18px, 2.1vw, 40px); font-weight: 750; padding: .6em 1em; border-radius: .6em; border: 0; cursor: pointer; background: var(--gold); color: #1a120c; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.big:disabled { opacity: .55; cursor: wait; }
+.big small { font-size: .8em; font-weight: 600; opacity: .92; line-height: 1.2; }
+.big.vr { background: #2c6e9a; color: #fff; }
+.big.cam { background: rgba(226,184,90,.14); color: var(--ink); border: 3px solid var(--gold); }
+.big.cam small { opacity: 1; font-weight: 600; color: #f0dfb4; }
+.big.nohmd { background: rgba(44,110,154,.28); color: #e4f3ff; border: 3px solid #7fc4f0; cursor: pointer; }
+.big.nohmd small { opacity: 1; font-weight: 650; color: #bfe3fa; }
+.small { margin: .7em 0 0; font-size: clamp(15px, 2.2vw, 42px); line-height: 1.25; opacity: .95; font-weight: 550; text-shadow: 0 1px 8px rgba(0,0,0,.9); }
+@media (max-aspect-ratio: 1/1), (max-width: 760px) {
+  .stamp.dots { left: 50%; right: auto; top: auto; bottom: 4vh; width: min(94vw, 640px); min-width: 0; }
+  .prompt, .stamp { left: 50%; transform: translateX(-50%); bottom: 4vh; width: min(94vw, 640px); text-align: center; font-size: clamp(16px, 4.4vw, 26px); }
+  .stamp b { font-size: clamp(22px, 6vw, 36px); }
+  .stamp span { font-size: clamp(14px, 3.6vw, 20px); }
+  .start { align-items: flex-end; justify-content: center; padding: 0 0 3vh; background: linear-gradient(to top, rgba(12,8,6,.9), rgba(12,8,6,.6) 40%, rgba(12,8,6,0) 66%); }
+  .start-card { text-align: center; width: min(94vw, 640px); max-width: calc(100vw - 16px); padding: 12px 14px 14px; }
+  .start-card .stakes { font-size: clamp(15px, 3.8vw, 22px); }
+  /* the demo's line goes to the top on a narrow or square window (the start card holds the bottom) */
+  body.starting .prompt { top: 3vh; bottom: auto; left: 50%; right: auto; transform: translateX(-50%); }
+  .start-card h1 { font-size: clamp(34px, 9vw, 64px); }
+  .goal { font-size: clamp(16px, 4vw, 22px); }
+  .start-buttons { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .big { font-size: clamp(16px, 4.2vw, 24px); min-width: 210px; }
+  .small { font-size: 14px; }
+}
+
+/* the pause card (flat play) */
+.pause { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(8,5,3,.62); z-index: 6; }
+.pause-card { text-align: center; padding: 24px 40px; background: var(--plate); border: 2px solid rgba(226,184,90,.75); border-radius: 18px; }
+.pause-card h2 { margin: 0 0 .5em; font-size: clamp(30px, 3.6vw, 64px); color: var(--gold); }
+
+/* the match-end card (flat play) */
+.matchend-card { max-width: min(640px, 86vw); }
+.matchend-card .me-result { margin: 0 0 .6em; font-size: clamp(18px, 1.7vw, 30px); }
+.matchend-card .me-caught { list-style: none; margin: 0 0 .5em; padding: 0; font-size: clamp(16px, 1.5vw, 26px); color: var(--ink); }
+.matchend-card .me-caught li { margin: .25em 0; }
+.matchend-card .me-next { margin: 0 0 1em; font-size: clamp(16px, 1.5vw, 26px); color: var(--gold); }
+
+/* A headset session (the emulator's too) shows the 3D scene only: no page words, no mouse hint, no screen finish layer. */
+body.xr main > :not(#scene-container) { display: none !important; }
+body.xr #flatfx { display: none !important; }
+body.xr #scene-container canvas { filter: none !important; }
+
+/* webcam hands: the small mirrored preview, bottom left (never over his face or the cards) */
+.cam-box { position: absolute; left: 14px; bottom: 14px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; z-index: 4; max-width: 260px; }
+.cam-box canvas { width: 224px; height: 168px; border-radius: 12px; border: 2px solid rgba(226,184,90,.8); background: #000; }
+.cam-box span { font-size: 15px; line-height: 1.25; background: var(--plate); padding: .25em .6em; border-radius: .5em; }
+.cam-box button { font-size: 15px; padding: .3em .8em; border-radius: .5em; border: 2px solid rgba(226,184,90,.7); background: var(--plate); color: var(--ink); cursor: pointer; }
+body.has-prompt .cam-box { bottom: 3vh; }
+
+/* round 3: a first visit can skip the lesson from the start screen */
+.skip { display: block; margin: .5em 0 0; padding: .35em .9em; font-size: clamp(14px, 1.5vw, 26px); font-weight: 650; border-radius: .6em; border: 1px solid rgba(226,184,90,.6); background: rgba(0,0,0,.35); color: var(--ink); cursor: pointer; }
+.skip:disabled { opacity: .7; cursor: default; }

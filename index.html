@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Cheat Seat: cheat a card shark by hand</title>
+    <meta name="description" content="You cheat a card shark by hand. He watches your hands. Move wrong and he slams. Play with a mouse in any browser, or with your real hands on Quest 3." />
+    <meta name="theme-color" content="#120d0a" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Cheat Seat" />
+    <meta property="og:title" content="Cheat Seat: cheat a card shark by hand" />
+    <meta property="og:description" content="You cheat a card shark by hand. He watches your hands. Move wrong and he slams. Mouse in any browser, real hands on Quest 3." />
+    <meta property="og:url" content="https://cheat-seat.vercel.app/" />
+    <meta property="og:image" content="https://cheat-seat.vercel.app/cheat-seat-preview.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The card shark in his fedora leans across a green felt table. Title: Cheat Seat." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Cheat Seat: cheat a card shark by hand" />
+    <meta name="twitter:description" content="You cheat a card shark by hand. He watches your hands. Move wrong and he slams." />
+    <meta name="twitter:image" content="https://cheat-seat.vercel.app/cheat-seat-preview.jpg" />
+    <meta name="twitter:image:alt" content="The card shark in his fedora leans across a green felt table. Title: Cheat Seat." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23120d0a'/%3E%3Ctext x='32' y='46' font-size='40' text-anchor='middle' fill='%23e2b85a'%3E%E2%99%A0%3C/text%3E%3C/svg%3E" />
+  </head>
+  <body class="starting">
+    <main>
+      <div id="scene-container"></div>
+
+      <!-- flat play: the page's own words and signs. The headset scene shows none of them (hands only). -->
+      <div id="hud" class="hud" hidden>
+        <span id="hud-round">Round 1 of 7</span>
+        <span id="hud-pot">Pot 0</span>
+        <span id="hud-strikes">Strikes: you 0 of 3 · him 0 of 3</span>
+        <span id="hud-points">Make him look away: 3 left</span>
+        <span id="hud-goal">Win the pot. Catch him cheating.</span>
+      </div>
+      <div id="pips" class="pips" aria-hidden="true" hidden><i></i><i></i><i></i><i></i></div>
+      <button id="pausebtn" class="pausebtn" type="button" aria-label="Pause" hidden><b></b><b></b></button>
+      <section id="pause" class="pause" hidden>
+        <div class="pause-card">
+          <h2>Paused</h2>
+          <button id="btn-resume" type="button" class="big">Resume</button>
+          <p class="small">Esc also resumes.</p>
+        </div>
+      </section>
+      <section id="matchend" class="pause matchend" hidden>
+        <div class="pause-card matchend-card">
+          <h2 id="me-title"></h2>
+          <p id="me-result" class="me-result"></p>
+          <ul id="me-caught" class="me-caught"></ul>
+          <p id="me-next" class="me-next"></p>
+          <button id="btn-rematch" type="button" class="big">Rematch: he remembers you</button>
+          <p class="small">Enter also starts it.</p>
+        </div>
+      </section>
+      <div id="prompt" class="prompt" role="status" hidden></div>
+      <div id="tremor" class="tremor" hidden><i></i><span>Hold still</span></div>
+      <div id="handicon" class="handicon" hidden>
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M17 6c-2 0-3.500 1.500-3.500 3.500V25l-3-3c-1.500-1.500-4-1.400-5.200.200-1 1.400-.8 3 .400 4.300l9.500 10.500C17.500 40.500 20.500 42 24 42h5c6 0 10-4 10-10V16c0-2-1.500-3.500-3.300-3.500-.600 0-1.200.200-1.700.500-.300-1.600-1.600-2.700-3.200-2.700-.900 0-1.600.300-2.200.800C27.200 9.700 26 8.800 24.600 8.800c-.600 0-1.200.200-1.700.500V9.500C22.900 7.500 21 6 19 6z"/></svg>
+        <span id="handicon-text">Under the table</span>
+      </div>
+      <div id="stamp" class="stamp" hidden><b id="stamp-main"></b><span id="stamp-sub"></span></div>
+      <div id="flash" class="flash"></div>
+      <button id="pointbtn" class="pointbtn" type="button" hidden>Point (or right-click)</button>
+      <span id="notice" class="notice" role="status"></span>
+      <!-- webcam hands (opt-in): a small mirrored preview of what the camera sees, a plain status line and a stop button. The picture stays in this page. -->
+      <div id="cam-box" class="cam-box" hidden>
+        <canvas id="cam-preview" width="224" height="168" aria-label="Your camera, mirrored, with the hand the game sees"></canvas>
+        <span id="cam-status" role="status"></span>
+        <button id="cam-stop" type="button">Stop camera</button>
+      </div>
+
+      <section id="start" class="start">
+        <div class="start-card">
+          <div class="spade">&#9824;</div>
+          <h1>Cheat Seat</h1>
+          <p class="goal">Win the pot. Sneak a better card past him. Catch him cheating.</p>
+          <p class="stakes">7 rounds. Three strikes and you lose.</p>
+          <div class="start-buttons">
+            <button id="btn-mouse" type="button" class="big" disabled>Loading the table...</button>
+            <button id="btn-cam" type="button" class="big cam">Play with your hands (webcam)<small>optional. Nothing is recorded or sent.</small></button>
+            <button id="btn-vr" type="button" class="big vr nohmd">Enter VR (best experience)<small id="vr-note">hands only, on Quest 3</small></button>
+          </div>
+          <button id="btn-skip" type="button" class="skip" hidden>Skip the lesson</button>
+          <p class="small" id="start-note">Loading the table: one moment.</p>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/index.ts"></script>
+  </body>
+</html>
