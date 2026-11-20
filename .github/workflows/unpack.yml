@@ -1,0 +1,29 @@
+# One-time workflow: checks the SHA-256 of one uploaded ZIP, unpacks it into the repo root and commits as github-actions[bot].
+# Fill portfolio-repo.zip (file name at the repo root, no folders) and 5c3ac2c7a63fceb45b5927317a4e1ee186017842c1bf6acf4613e4a71a6e7a7b (64 hex characters of the local ZIP). Delete this file after the run.
+# The ZIP must not contain .github/ (the bot token may not write workflow files); add check.yml separately.
+name: unpack
+on:
+  push:
+    paths:
+      - "portfolio-repo.zip"
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the ZIP hash
+        run: echo "5c3ac2c7a63fceb45b5927317a4e1ee186017842c1bf6acf4613e4a71a6e7a7b  portfolio-repo.zip" | sha256sum -c -
+      - name: Unpack
+        run: |
+          unzip -q "portfolio-repo.zip" -d .
+          rm "portfolio-repo.zip"
+          echo "files after unpack: $(git ls-files -o --exclude-standard | wc -l) new, $(git ls-files -d | wc -l) removed"
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Unpack kit"
+          git push
