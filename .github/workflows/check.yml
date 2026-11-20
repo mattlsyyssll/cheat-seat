@@ -19,7 +19,7 @@ jobs:
       - name: Checks
         run: |
           set -e
-          npm ci
+          npm ci --onnxruntime-node-install-cuda=skip
           npm test
           npm run typecheck
       - name: Saved files unchanged by the re-run
